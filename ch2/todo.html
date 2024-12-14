@@ -16,6 +16,18 @@
     <script>
       var todoApp = angular.module("todoApp", []);
 
+      todoApp.filter("checkedItems", function () {
+        return function (items, showComplete) {
+          var resultArr = [];
+          angular.forEach(items, function (item) {
+            if (item.done == false || showComplete == true) {
+              resultArr.push(item);
+            }
+          });
+          return resultArr;
+        };
+      });
+
       const model = {
         user: "Adam",
         items: [
@@ -42,6 +54,10 @@
             ? "badge-success"
             : "badge-warning";
         };
+
+        $scope.addNewItem = function (actionText) {
+          $scope.todo.items.push({ action: actionText, done: false });
+        };
       });
     </script>
   </head>
@@ -59,9 +75,11 @@
     </div>
     <div class="panel">
       <div class="input-group">
-        <input type="text" class="form-control" />
+        <input type="text" class="form-control" ng-model="actionText" />
         <span class="input-group-btn">
-          <button class="btn btn-default">Add</button>
+          <button class="btn btn-primary" ng-click="addNewItem(actionText)">
+            Add
+          </button>
         </span>
       </div>
       <table class="table table-striped">
@@ -72,13 +90,20 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="item in todo.items">
+          <tr
+            ng-repeat="item in todo.items | checkedItems: showComplete | orderBy: 'action'"
+          >
             <td>{{item.action}}</td>
             <td><input type="checkbox" ng-model="item.done" /></td>
             <td>{{item.done}}</td>
           </tr>
         </tbody>
       </table>
+      <div class="checkbox-inline">
+        <label
+          ><input type="checkbox" ng-model="showComplete" />Show Complete</label
+        >
+      </div>
     </div>
   </body>
 </html>
